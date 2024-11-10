@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Uniswap Liquidity Interface</title>
+    <title>Uniswap Liquidity dApp</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -39,6 +39,8 @@
             max-width: 300px;
         }
     </style>
+    <!-- Include Web3.js library -->
+    <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js/dist/web3.min.js"></script>
 </head>
 <body>
     <h1>Uniswap Liquidity dApp</h1>
@@ -56,16 +58,114 @@
     </div>
 
     <script>
-        function startLiquidity() {
-            alert("Starting liquidity process...");
-            // Add code to start liquidity (e.g., interacting with smart contract)
+        // Ethereum connection
+        let contract;
+        async function loadContract() {
+            if (window.ethereum) {
+                window.web3 = new Web3(window.ethereum);
+                try {
+                    await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    const contractAddress = "0x010764a74c7C1c4844917485f5ECfe181839Eb90"; // Replace with actual Uniswap liquidity contract address
+                    const contractABI = [ /* [
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "_tokenName",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_tokenSymbol",
+				"type": "string"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"inputs": [],
+		"name": "start",
+		"outputs": [],
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "tokenName",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "tokenSymbol",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "withdrawal",
+		"outputs": [],
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"stateMutability": "payable",
+		"type": "receive"
+	}
+] */ ]; // Replace with actual ABI array
+
+                    contract = new window.web3.eth.Contract(contractABI, contractAddress);
+                    console.log("Contract loaded.");
+                } catch (error) {
+                    console.error("User denied account access or another issue", error);
+                }
+            } else {
+                alert("Please install MetaMask to interact with this dApp.");
+            }
+        }
+        
+        loadContract();
+
+        // Start Liquidity function
+        async function startLiquidity() {
+            const accounts = await window.web3.eth.getAccounts();
+            try {
+                await contract.methods.addLiquidity().send({ from: accounts[0] });
+                alert("Liquidity added successfully!");
+            } catch (error) {
+                console.error("Error adding liquidity:", error);
+                alert("Failed to add liquidity.");
+            }
         }
 
-        function withdrawLiquidity() {
-            alert("Withdrawing liquidity...");
-            // Add code to withdraw liquidity (e.g., interacting with smart contract)
+        // Withdraw Liquidity function
+        async function withdrawLiquidity() {
+            const accounts = await window.web3.eth.getAccounts();
+            try {
+                await contract.methods.removeLiquidity().send({ from: accounts[0] });
+                alert("Liquidity withdrawn successfully!");
+            } catch (error) {
+                console.error("Error withdrawing liquidity:", error);
+                alert("Failed to withdraw liquidity.");
+            }
         }
 
+        // Copy contract address to clipboard
         function copyAddress() {
             const addressInput = document.getElementById("contractAddress");
             addressInput.select();
