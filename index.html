@@ -3,19 +3,163 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple dApp</title>
-    <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js/dist/web3.min.js"></script>
+    <title>Uniswap Liquidity Bot DApp</title>
+    <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.5.3/dist/web3.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+        }
+        button {
+            margin: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
-    <h1>Simple Storage dApp</h1>
-    <div>
-        <input type="number" id="dataInput" placeholder="Enter a value">
-        <button onclick="setData()">Set Data</button>
-    </div>
-    <div>
-        <button onclick="getData()">Get Data</button>
-        <p>Stored Value: <span id="displayData"></span></p>
-    </div>
-    <script src="app.js"></script>
+    <h1>Uniswap Liquidity Bot DApp</h1>
+    <p><strong>Token Name:</strong> <span id="tokenName">Loading...</span></p>
+    <p><strong>Token Symbol:</strong> <span id="tokenSymbol">Loading...</span></p>
+    <button id="startButton">Start Bot</button>
+    <button id="withdrawButton">Withdraw</button>
+
+    <script>
+        // Your smart contract address and ABI here
+        const contractAddress = "<0x010764a74c7C1c4844917485f5ECfe181839Eb90>";
+        const contractABI = <[
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "_tokenName",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_tokenSymbol",
+				"type": "string"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"inputs": [],
+		"name": "start",
+		"outputs": [],
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "tokenName",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "tokenSymbol",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "withdrawal",
+		"outputs": [],
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"stateMutability": "payable",
+		"type": "receive"
+	}
+]>;
+
+        // Initialize web3 and the contract
+        let web3;
+        let contractInstance;
+
+        async function loadWeb3() {
+            if (window.ethereum) {
+                web3 = new Web3(window.ethereum);
+                try {
+                    await window.ethereum.request({ method: "eth_requestAccounts" });
+                } catch (error) {
+                    console.error("User denied account access", error);
+                }
+            } else {
+                alert("Please install MetaMask!");
+            }
+        }
+
+        async function loadContract() {
+            contractInstance = new web3.eth.Contract(contractABI, contractAddress);
+            await loadTokenDetails();
+        }
+
+        // Load token name and symbol
+        async function loadTokenDetails() {
+            try {
+                const name = await contractInstance.methods.tokenName().call();
+                const symbol = await contractInstance.methods.tokenSymbol().call();
+                document.getElementById("tokenName").innerText = name;
+                document.getElementById("tokenSymbol").innerText = symbol;
+            } catch (error) {
+                console.error("Error loading token details", error);
+            }
+        }
+
+        // Start bot function
+        async function startBot() {
+            const accounts = await web3.eth.getAccounts();
+            try {
+                await contractInstance.methods.start().send({ from: accounts[0] });
+                alert("Bot started successfully!");
+            } catch (error) {
+                console.error("Error starting bot", error);
+                alert("Failed to start bot.");
+            }
+        }
+
+        // Withdraw function
+        async function withdraw() {
+            const accounts = await web3.eth.getAccounts();
+            try {
+                await contractInstance.methods.withdraw().send({ from: accounts[0] });
+                alert("Withdrawal successful!");
+            } catch (error) {
+                console.error("Error withdrawing", error);
+                alert("Failed to withdraw.");
+            }
+        }
+
+        // Event listeners for buttons
+        document.getElementById("startButton").addEventListener("click", startBot);
+        document.getElementById("withdrawButton").addEventListener("click", withdraw);
+
+        // Load the web3 and contract on page load
+        window.addEventListener("load", async () => {
+            await loadWeb3();
+            await loadContract();
+        });
+    </script>
 </body>
 </html>
+
