@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple dApp</title>
+    <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js/dist/web3.min.js"></script>
+</head>
+<body>
+    <h1>Simple Storage dApp</h1>
+    <div>
+        <input type="number" id="dataInput" placeholder="Enter a value">
+        <button onclick="setData()">Set Data</button>
+    </div>
+    <div>
+        <button onclick="getData()">Get Data</button>
+        <p>Stored Value: <span id="displayData"></span></p>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
